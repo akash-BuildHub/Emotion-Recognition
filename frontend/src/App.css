@@ -1,0 +1,180 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0a0a12;
+  --color-hero-top: #2a0030;
+  --color-hero-mid: #120a1e;
+  --color-hero-bottom: #0a0a12;
+  --color-pink: #ef49f4;
+  --color-purple: #9400d3;
+  --color-btn-top: #c218db;
+  --color-btn-bottom: #9400d3;
+  --color-soft: #c9c3d4;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: local("Poppins");
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  width: 100%;
+  min-height: 100dvh;
+}
+
+body {
+  font-family: "Poppins", "Segoe UI", sans-serif;
+  background: var(--color-bg);
+  color: #fff;
+  overflow-x: hidden;
+}
+
+/* ── Hero Section ── */
+.hero-section {
+  position: relative;
+  width: 100%;
+  min-height: 100dvh;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 15% 0%, rgba(120, 0, 140, 0.35) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 50%, rgba(200, 40, 220, 0.15) 0%, transparent 40%),
+    linear-gradient(180deg, var(--color-hero-top) 0%, var(--color-hero-mid) 40%, var(--color-hero-bottom) 100%);
+}
+
+/* Vignette overlay */
+.hero-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(0, 0, 0, 0.6) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Heading ── */
+.hero-heading {
+  font-family: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: clamp(3rem, 7vw, 5.5rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.08;
+  background: linear-gradient(135deg, #ff6bf5 0%, #d946ef 40%, #a855f7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── CTA Button ── */
+.cta-button {
+  position: relative;
+  border: none;
+  border-radius: 14px;
+  padding: 16px 36px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(180deg, var(--color-btn-top), var(--color-btn-bottom));
+  cursor: pointer;
+  box-shadow:
+    0 0 20px rgba(200, 24, 219, 0.4),
+    0 0 60px rgba(200, 24, 219, 0.15);
+  transition: all 0.3s ease;
+  letter-spacing: 0.3px;
+}
+
+.cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 30px rgba(200, 24, 219, 0.6),
+    0 0 80px rgba(200, 24, 219, 0.25);
+}
+
+/* ── Thread (dotted line) ── */
+.emoji-thread {
+  position: absolute;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 5;
+  transform-origin: top center;
+}
+
+.thread-line {
+  width: 0;
+  border-left: 2px dashed rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
+}
+
+.emoji-img {
+  display: block;
+  width: clamp(40px, 5vw, 64px);
+  height: auto;
+  margin-top: -2px;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.5));
+  cursor: pointer;
+  transition: filter 0.3s ease;
+}
+
+.emoji-img:hover {
+  filter: drop-shadow(0 8px 24px rgba(200, 24, 219, 0.5));
+  transform: scale(1.1);
+}
+
+/* ── Robot ── */
+.robot-container {
+  position: absolute;
+  right: 0;
+  bottom: -18vh;
+  z-index: 3;
+  width: clamp(320px, 45vw, 620px);
+  pointer-events: none;
+}
+
+.robot-image {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 0 40px rgba(100, 180, 255, 0.15));
+}
+
+/* ── Glowing Particles ── */
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: particleFloat 4s ease-in-out infinite;
+}
+
+@keyframes particleFloat {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-20px) scale(1.3);
+    opacity: 1;
+  }
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .hero-heading {
+    font-size: clamp(2.2rem, 8vw, 3.5rem);
+  }
+
+  .robot-container {
+    position: relative;
+    width: 80%;
+    max-width: 400px;
+    margin: 4rem auto 0;
+    right: auto;
+    bottom: auto;
+  }
+}
