@@ -48,6 +48,16 @@ body {
     linear-gradient(180deg, var(--color-hero-top) 0%, var(--color-hero-mid) 40%, var(--color-hero-bottom) 100%);
 }
 
+.hero-section,
+.hero-section * {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.hero-section img {
+  -webkit-user-drag: none;
+}
+
 /* Vignette overlay */
 .hero-section::before {
   content: "";
