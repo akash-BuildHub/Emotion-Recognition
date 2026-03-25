@@ -1,5 +1,5 @@
-import { useRef, useCallback } from "react";
-import { motion, useSpring, useTransform } from "framer-motion";
+import { useCallback } from "react";
+import { motion, useAnimationControls } from "framer-motion";
 
 import robotImage from "./assets/images/robot_image.png";
 import angryEmoji from "./assets/icons/angry.png";
@@ -10,7 +10,6 @@ import fearEmoji from "./assets/icons/fear.png";
 import happyEmoji from "./assets/icons/happy.png";
 import sadEmoji from "./assets/icons/sad.png";
 
-/* ── Emoji thread config ── */
 const EMOJIS = [
   { src: happyEmoji, alt: "Happy", left: "20%", threadH: 210 },
   { src: thinkingEmoji, alt: "Thinking", left: "30%", threadH: 308 },
@@ -21,7 +20,6 @@ const EMOJIS = [
   { src: cryEmoji, alt: "Crying", left: "65%", threadH: 200 },
 ];
 
-/* ── Particle data ── */
 const PARTICLES = [
   { w: 6, color: "rgba(100,200,255,0.6)", top: "40%", right: "18%", delay: 0 },
   { w: 4, color: "rgba(180,100,255,0.5)", top: "55%", right: "12%", delay: 1.2 },
@@ -31,48 +29,29 @@ const PARTICLES = [
   { w: 7, color: "rgba(200,140,255,0.4)", top: "35%", right: "15%", delay: 0.4 },
 ];
 
-/* ── Hanging Emoji Component ── */
-function HangingEmoji({ src, alt, left, threadH, mouseX, imgOffset = -2 }) {
-  const springConfig = { stiffness: 80, damping: 12, mass: 0.8 };
-  const rotation = useSpring(0, springConfig);
+function HangingEmoji({ src, alt, left, threadH, imgOffset = -2 }) {
+  const threadControls = useAnimationControls();
 
-  // Convert left % to a numeric value for distance calculation
-  const leftNum = parseFloat(left);
+  const triggerSwing = useCallback(() => {
+    threadControls.stop();
+    threadControls.set({ rotate: 0 });
 
-  // Transform mouse X position to rotation based on proximity
-  const handleMouseInfluence = useCallback(
-    (mx) => {
-      if (mx === null) {
-        rotation.set(0);
-        return;
-      }
-      const emojiCenter = (leftNum / 100) * window.innerWidth;
-      const distance = mx - emojiCenter;
-      const maxDist = 300;
-      const influence = Math.max(0, 1 - Math.abs(distance) / maxDist);
-      const angle = (distance / maxDist) * 25 * influence;
-      rotation.set(angle);
-    },
-    [leftNum, rotation]
-  );
-
-  // Use ref to store latest handler
-  const handlerRef = useRef(handleMouseInfluence);
-  handlerRef.current = handleMouseInfluence;
-
-  // Subscribe to mouseX changes
-  useTransform(mouseX, (v) => {
-    handlerRef.current(v);
-    return v;
-  });
+    threadControls.start({
+      rotate: [0, 9, -7.2, 5.4, -3.8, 2.5, -1.4, 0.7, -0.2, 0],
+      transition: {
+        duration: 2.6,
+        times: [0, 0.11, 0.23, 0.36, 0.5, 0.64, 0.76, 0.87, 0.95, 1],
+        ease: "easeInOut",
+      },
+    });
+  }, [threadControls]);
 
   return (
     <motion.div
       className="emoji-thread"
-      style={{
-        left,
-        rotate: rotation,
-      }}
+      animate={threadControls}
+      onHoverStart={triggerSwing}
+      style={{ left }}
     >
       <div className="thread-line" style={{ height: threadH }} />
       <motion.img
@@ -80,9 +59,10 @@ function HangingEmoji({ src, alt, left, threadH, mouseX, imgOffset = -2 }) {
         alt={alt}
         className="emoji-img"
         style={{ marginTop: `${imgOffset}px` }}
-        animate={{
-          y: [0, -6, 0],
-        }}
+        onClick={triggerSwing}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 1.04 }}
+        animate={{ y: [0, -6, 0] }}
         transition={{
           duration: 2.5 + Math.random(),
           repeat: Infinity,
@@ -93,32 +73,11 @@ function HangingEmoji({ src, alt, left, threadH, mouseX, imgOffset = -2 }) {
   );
 }
 
-/* ── Main App ── */
 function App() {
-  const mouseX = useSpring(null, { stiffness: 100, damping: 20 });
-
-  const handleMouseMove = useCallback(
-    (e) => {
-      mouseX.set(e.clientX);
-    },
-    [mouseX]
-  );
-
-  const handleMouseLeave = useCallback(() => {
-    mouseX.set(null);
-  }, [mouseX]);
-
   return (
-    <div
-      className="hero-section"
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-    >
-      {/* ── Left Content ── */}
+    <div className="hero-section">
       <div className="relative z-10 flex flex-col justify-center px-[6%] mt-[27vh] max-w-[50%] max-md:max-w-[90%]">
-        <h1 className="hero-heading">
-          ꜰᴀᴄᴇ ᴇᴍᴏᴛɪᴏɴ ʀᴇᴄᴏɢɴɪᴛɪᴏɴ
-        </h1>
+        <h1 className="hero-heading">Face Emotion Recognition</h1>
         <p className="mt-4 text-[#c9c3d4]/80 text-base md:text-lg leading-relaxed max-w-[480px]">
           Read the Face. Reveal the Feeling
         </p>
@@ -129,12 +88,10 @@ function App() {
         </div>
       </div>
 
-      {/* ── Hanging Emojis ── */}
       {EMOJIS.map((emoji) => (
-        <HangingEmoji key={emoji.alt} {...emoji} mouseX={mouseX} />
+        <HangingEmoji key={emoji.alt} {...emoji} />
       ))}
 
-      {/* ── Robot ── */}
       <motion.div
         className="robot-container"
         animate={{ y: [0, -12, 0] }}
@@ -147,7 +104,6 @@ function App() {
         <img src={robotImage} alt="AI Robot" className="robot-image" />
       </motion.div>
 
-      {/* ── Glowing Particles ── */}
       {PARTICLES.map((p, i) => (
         <div
           key={i}
@@ -168,3 +124,4 @@ function App() {
 }
 
 export default App;
+
